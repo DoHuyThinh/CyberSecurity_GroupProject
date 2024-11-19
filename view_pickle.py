@@ -1,7 +1,7 @@
 import pickle
 
 # Thay đổi đường dẫn đến file .pkl của bạn
-file_path = 'new_intrusion_model.pkl'
+file_path = 'server_vulnerability_model.pkl'
 
 # Mở và đọc file pickle
 with open(file_path, 'rb') as file:
