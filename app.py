@@ -1,8 +1,6 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, Response, send_from_directory
 import pickle
-import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
+import numpy as np
 
 app = Flask(__name__)
 
@@ -20,59 +18,48 @@ load_model()
 
 @app.route('/')
 def home():
-    return "Welcome to the Server Vulnerability Analysis API!"
+    return render_template('index.html')
 
 @app.route('/predict', methods=['POST'])
-def predict_vulnerability():
-    global model
+def predict():
     try:
-        data = request.get_json()
-        required_features = ['feature1', 'feature2', 'feature3']
-        if not all(feature in data for feature in required_features):
-            return jsonify({"error": "Missing required features"}), 400
+        # Read model và scaler
+        with open('server_vulnerability_model.pkl', 'rb') as f:
+            model, scaler = pickle.load(f)
             
-        input_data = [
-            data['feature1'],
-            data['feature2'],
-            data['feature3']
-        ]
+        features = np.array([[
+            float(request.json['feature1']),
+            float(request.json['feature2']),
+            float(request.json['feature3'])
+        ]])
         
-        if model is None:
-            return jsonify({"error": "Model not loaded. Please train the model first"}), 400
-            
-        prediction = model.predict([input_data])
-        return jsonify({"prediction": "Normal" if prediction[0] == 1 else "Attack"})
-    
+        # Normalize input data
+        features_scaled = scaler.transform(features)
+        prediction = model.predict(features_scaled)[0]
+        
+        return jsonify({'prediction': prediction})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({'error': str(e)}), 400
 
 @app.route('/train', methods=['POST'])
-def train_model():
-    global model
+def train():
     try:
-      
-        data = pd.read_csv("server_metrics_data.csv")
-        
-        X = data[['feature1', 'feature2', 'feature3']]
-        y = (data['label'] == 'normal').astype(int)
-        
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        
-       
-        model = RandomForestClassifier(n_estimators=100, random_state=42)
-        model.fit(X_train, y_train)
-        
-        with open("server_vulnerability_model.pkl", "wb") as file:
-            pickle.dump(model, file)
-            
-        accuracy = model.score(X_test, y_test)
+        import train_model
         return jsonify({
-            "message": "Model trained successfully!",
-            "accuracy": float(accuracy)
+            'message': 'The model has been trained successfully.!'
         })
-    
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/style.css')
+def serve_css():
+    with open('templates/style.css', 'r') as f:
+        css_content = f.read()
+    return Response(css_content, mimetype='text/css')
+
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    return send_from_directory('static', filename)
 
 if __name__ == '__main__':
     app.run(debug=True)

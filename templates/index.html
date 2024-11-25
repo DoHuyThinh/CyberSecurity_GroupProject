@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Server Vulnerability Analysis</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <h1>Server Vulnerability Analysis</h1>
+
+    <!-- Train Model Section -->
+    <div class="container">
+      <h2>Train Model</h2>
+      <button onclick="trainModel()">Train Model</button>
+      <div id="trainResult" class="result"></div>
+    </div>
+
+    <!-- Predict Section -->
+    <div class="container">
+      <h2>Predict Vulnerability</h2>
+      <div class="form-group">
+        <label>Feature 1 (Network Traffic Rate):</label>
+        <input
+          type="number"
+          id="feature1"
+          step="0.01"
+          min="0"
+          max="1"
+          placeholder="Enter value between 0-1"
+        />
+        <div class="small-text">
+          Measures network traffic rate in requests/second
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Feature 2 (CPU Usage):</label>
+        <input
+          type="number"
+          id="feature2"
+          step="0.01"
+          min="0"
+          max="1"
+          placeholder="Enter value between 0-1"
+        />
+        <div class="small-text">CPU usage percentage (0-1)</div>
+      </div>
+
+      <div class="form-group">
+        <label>Feature 3 (Memory Usage):</label>
+        <input
+          type="number"
+          id="feature3"
+          step="0.01"
+          min="0"
+          max="1"
+          placeholder="Enter value between 0-1"
+        />
+        <div class="small-text">Memory usage percentage (0-1)</div>
+      </div>
+
+      <button onclick="predict()">Predict</button>
+      <div id="predictResult" class="result"></div>
+    </div>
+
+    <script src="/static/script.js"></script>
+  </body>
+</html>
